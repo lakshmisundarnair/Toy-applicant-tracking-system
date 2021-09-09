@@ -1,0 +1,320 @@
+body{
+  margin:0;
+  color:#6a6f8c;
+  background:#c8c8c8;
+  font:600 16px/18px 'Open Sans',sans-serif;
+}
+*,:after,:before{box-sizing:border-box}
+.clearfix:after,.clearfix:before{content:'';display:table}
+.clearfix:after{clear:both;display:block}
+a{color:inherit;text-decoration:none}
+.container .row .alert{
+  font-size: 14px;
+}
+
+.login-wrap{
+  width:100%;
+  margin:auto;
+  margin-top: 60px;
+   top: 4%;
+  max-width:525px;
+  min-height:670px;
+  position:relative;
+  background:url(https://raw.githubusercontent.com/khadkamhn/day-01-login-form/master/img/bg.jpg) no-repeat center;
+  box-shadow:0 12px 15px 0 rgba(0,0,0,.24),0 17px 50px 0 rgba(0,0,0,.19);
+}
+h1{
+  color:#fff;  position: absolute;
+      top: 2%;
+      left: 50%;
+      width: 100%;
+      text-align: center;
+      transform: translate(-50%, -50%);
+      font-size: 40px;
+      font-weight: 600; 
+      color: #1161ee;
+}
+.login-html{
+  width:100%;
+  height:100%;
+  position:absolute;
+  padding:100px 70px 50px 70px;
+  background:rgba(40,57,101,.9);
+}
+.login-html .sign-in-htm{
+  top:10;
+  left:0;
+  right:0;
+  bottom:0;
+  position:absolute;
+  transform:rotateY(180deg);
+  backface-visibility:hidden;
+  transition:all .4s linear;
+}
+.login-html .sign-in,
+
+.login-form .group .check{
+
+  display:none;
+}
+.login-html .tab,
+.login-form .group .label,
+.login-form .group .button{
+  text-transform:uppercase;
+}
+.login-html .tab{
+  font-size:22px;
+  margin-right:15px;
+  top: 10;
+  padding-bottom:5px;
+  margin:0 15px 10px 0;
+  display:inline-block;
+  border-bottom:2px solid transparent;
+}
+.login-html .sign-in:checked + .tab{
+  color:#fff;
+  border-color:#1161ee;
+}
+.login-form{
+  min-height:345px;
+  position:relative;
+  perspective:1000px;
+  transform-style:preserve-3d;
+}
+.login-form .group{
+  margin-bottom:15px;
+}
+.login-form .group .label,
+.login-form .group .input,
+.login-form .group .button{
+  width:100%;
+  color:#fff;
+  display:block;
+}
+
+.login-form .group .input,
+.login-form .group .button{
+  border:none;
+  padding:15px 20px;
+  border-radius:25px;
+  background:rgba(255,255,255,.1);
+}
+.login-form .group input[data-type="password"]{
+  text-rendering:circle;
+  -webkit-text-security:circle;
+}
+.login-form .group .label{
+  color:#aaa;
+  font-size:12px;
+}
+.login-form .group .button{
+  background:#1161ee;
+}
+.login-form .group label .icon{
+  width:15px;
+  height:15px;
+  border-radius:2px;
+  position:relative;
+  display:inline-block;
+  background:rgba(255,255,255,.1);
+}
+.login-form .group label .icon:before,
+.login-form .group label .icon:after{
+  content:'';
+  width:10px;
+  height:2px;
+  background:#fff;
+  position:absolute;
+  transition:all .2s ease-in-out 0s;
+}
+.login-form .group label .icon:before{
+  left:3px;
+  width:5px;
+  bottom:6px;
+  transform:scale(0) rotate(0);
+}
+.login-form .group label .icon:after{
+  top:6px;
+  right:0;
+  transform:scale(0) rotate(0);
+}
+.login-form .group .check:checked + label{
+  color:#fff;
+}
+.login-form .group .check:checked + label .icon{
+  background:#1161ee;
+}
+.login-form .group .check:checked + label .icon:before{
+  transform:scale(1) rotate(45deg);
+}
+.login-form .group .check:checked + label .icon:after{
+  transform:scale(1) rotate(-45deg);
+}
+.login-html .sign-in:checked + .tab +  .login-form .sign-in-htm{
+  transform:rotate(0);
+}
+.login-html {
+  transform:rotate(0);
+}
+
+.hr{
+  height:3px;
+  margin:60px 0 50px 0;
+  background:rgba(255,255,255,.2);
+}
+.foot-lnk{
+  text-align:center;
+
+}
+.widget1{
+  position: absolute;
+  right: 5px;
+  margin: 10px;
+  top: 10px;
+}
+.widget{
+  margin: 0;
+  height: unset;
+  
+
+}
+.alert-primaryc {
+  color: #e9ecef;
+  background-color: #07af61;
+  margin: auto;
+  text-align: center;
+  font-style: normal;
+  max-width: 525px;
+  min-height: 50px;
+  
+  border-color: rgb(0 0 0 / 13%);
+}
+nav{
+  width:100%;
+ 
+  position: absolute;
+ 
+  font-family: 'Poppins', sans-serif;
+} 
+.wrap{
+width:100%;
+margin:auto;
+top: 4%;
+max-width:2000px;
+min-height:80px;
+position:relative;
+background:url(https://t4.ftcdn.net/jpg/02/85/21/61/360_F_285216103_ElyD9dO5q7MxXaEOcPvOsTTMK28IRIoW.jpg)  no-repeat ;
+background-size: cover;
+box-shadow:0 12px 15px 0 rgba(0,0,0,.24),0 17px 50px 0 rgba(0,0,0,.19);
+}
+.html{
+width:100%;
+height:100%;
+position:absolute;
+
+background:rgba(40,57,101,.9);
+}
+
+nav a.navbar-brand {
+  margin-left: -350px;
+  color: #fff;
+  font-size: 30px!important;
+  font-weight: 500;
+  text-align: center;
+
+}
+
+h2{
+  position: absolute;
+  top: 20%;
+  left: 50%;
+  width: 100%;
+  text-align: center;
+  transform: translate(-50%, -50%);
+  font-size: 30px;
+  font-weight: 600;
+}
+ul{
+  
+padding:0%;
+margin: 0 0 0 250px;
+list-style: none;
+}
+li{
+float: left;
+}
+img, svg {
+  width: 60px;
+  margin-left: 30px;
+  vertical-align: middle;
+}
+li a {
+left: 50%;
+width: 120px;
+display: block;
+padding: 20px 15px ;
+text-decoration:none;
+font-family: 'Poppins', sans-serif;
+color:#fff;
+text-align: center;
+
+}
+li a:hover{
+background: #F0FFF0;
+border-radius: 8px;
+
+text-decoration: none;
+}
+.container{
+position: absolute;
+top: 55%;
+left: 50%;
+transform: translate(-90%, -50%);
+}
+.container .form{
+background: #fff;
+padding: 30px 35px;
+border-radius: 5px;
+box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+.container .form form .form-control{
+height: 40px;
+font-size: 15px;
+}
+.container .form form .button{
+background:  rgba(40,57,101,.9);
+color: #fff;
+font-size: 17px;
+font-weight: 500;
+transition: all 0.3s ease;
+}
+.container .form form .button:hover{
+background: #5757d1;
+}
+.container .form form .link{
+padding: 5px 0;
+}
+.container .form form .link a{
+color: #6665ee;
+}
+.container .login-form form p{
+font-size: 14px;
+}
+.container .row .alert{
+font-size: 14px;
+}
+
+div.header {
+display: block; text-align: center; 
+position: running(header);
+}
+div.footer {
+display: block; text-align: center;
+position: running(footer);
+}
+@page {
+@top-center { content: element(header) }
+}
+@page { 
+@bottom-center { content: element(footer) }
+}
