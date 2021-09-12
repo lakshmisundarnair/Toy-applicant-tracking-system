@@ -15,15 +15,15 @@
         </thead>
         <tbody>
           <tr v-for="(item,index) in applications" :key="index">
-            <td>{{ item.job[0].title }}</td>
-            <td>{{ item.job[0].company_name }}</td>
-            <td>{{ item.job[0].salary }}</td>
-            <td>{{ item.job[0].job_type }}</td>
-            <td>{{ item.application[0].email }}</td>
+            <td>{{ item.job.title }}</td>
+            <td>{{ item.job.company_name }}</td>
+            <td>{{ item.job.salary }}</td>
+            <td>{{ item.job.job_type }}</td>
+            <td>{{ item.applicant.email }}</td>
 
             <td>
               <v-icon small @click="opendailog(index)">mdi-eye</v-icon> &nbsp;
-              <v-icon small @click="deletee(item.application[0].id)">
+              <v-icon small @click="deletee(item.id)">
                 mdi-delete
               </v-icon>
             </td>
@@ -34,13 +34,13 @@
      <v-dialog v-model="dialog" width="600px">
             <v-card>
               <v-card-title>
-                <span class="text-h5">SUBMITED RESPONSE</span> </v-card-title
+                <span class="text-h5">SUBMITTED RESPONSE</span> </v-card-title
               ><br />
               <v-card-text>
-                <span style="font-weight: bold">Name</span> :  
-                {{view.name}}<br /><br />
+               <span style="font-weight: bold">Name</span> :  
+                {{n}}<br /><br />
                 <span style="font-weight: bold">Email</span> :
-                {{view.email }}<br /><br />
+                {{e}}<br /><br />
                 <span style="font-weight: bold">Introduction</span> : 
                 {{view.introduction}}<br /><br />
                 <span style="font-weight: bold">Qualification</span> :
@@ -52,12 +52,12 @@
                 <span style="font-weight: bold">Phone no</span> :
                 {{view.phone}}<br /><br />
                 <span style="font-weight: bold">Submited on</span> :
-                {{view.applied_at}}<br /><br />
+                {{view.submitted_on}}<br /><br />
               </v-card-text>
               <v-card-actions>
                 <v-spacer></v-spacer>
                 <v-btn color="green darken-1" text @click="close()">
-                  Cancle
+                  Cancel
                 </v-btn>
               </v-card-actions>
             </v-card>
@@ -97,7 +97,7 @@ export default {
       this.id = JSON.parse(localStorage.getItem("userinfo"));
 
       axios
-        .post("/applied", { id: this.id.id })
+        .get('/applications/'+this.id.email)
         .then((res) => {
           this.applications = res.data;
         })
@@ -110,22 +110,26 @@ export default {
       this.dialogDelete=true
     },
     deleteItem() {
-      this.$router.go()
+     
       axios
-        .delete("/application/delete", { data: { id: this.i } })
+        .delete("/application/delete/"+ this.i )
         .then((res) => {
           this.applications = res.data
           if (res.status == 200) {
-            this.$alert("Successfully deleted")            
+            this.$alert("Successfully deleted") 
+             this.$router.go()           
+          }
+          if(res.status==400){
+            this.$alert(res)
           }
         })
-        .catch((error) => {
-          this.$alert(error)
-        })
+       
     },
     opendailog(index){
       this.dialog=true
-      this.view=this.applications[index].application[0]
+      this.view=this.applications[index]
+      this.n=this.applications[index].applicant.name
+      this.e=this.applications[index].applicant.email
     },
     close(){
       this.dialog=false

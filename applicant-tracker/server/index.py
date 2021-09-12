@@ -1,13 +1,15 @@
-from fastapi import FastAPI
-import models
-from datetime import datetime
-from sqlalchemy.sql import func
-from models import user,job,application
+from typing import List
 from fastapi.middleware.cors import CORSMiddleware
-from database import engine,conn
-from schemas import Baseschema,Application,Jobresponse
+from fastapi import Depends, FastAPI, HTTPException
+from sqlalchemy.orm import Session
 
-app=FastAPI()
+import crud, models, schemas
+from database import SessionLocal, engine
+
+
+models.Base.metadata.create_all(bind=engine)
+
+
 app = FastAPI()
 origins= [
     'http://localhost:8000',
@@ -26,90 +28,121 @@ app.add_middleware(
 
 
 
-@app.get("/user")
-def read_somthing():
-    return conn.execute(user.select()).fetchall()
-@app.get("/jobs/notapplied/{id}")
-def get_jobs(id:int):
-    sql="SELECT * FROM jobs j where j.id NOT IN(SELECT job_id FROM applications WHERE user_id=?)"
-    q=conn.execute(sql,(id,)).fetchall()
-    return q
-@app.post("/applied")
-def get_applicant(user:Baseschema):
-    applications=[]
-    query=conn.execute(application.select().where(application.c.user_id==user.id)).fetchall()
-    for i in range(len(query)):
-        jobs=conn.execute(job.select().where(job.c.id==query[i].job_id)).fetchall()
-        arr= {"application":[query[i]],"job":None}
-        arr['job']=jobs
-        applications.append(arr)
-    return applications
-@app.post("/application")
-def get_application(user:Baseschema):
-    applications=[]
-    query=conn.execute(job.select().where(job.c.auther_id==user.id)).fetchall()
-    for jobs in range(len(query)):
-        query2=conn.execute(application.select().where(application.c.job_id==query[jobs].id)).fetchall()
-             
-        arr= {"job":query[jobs],"applicant":None}
-        arr['applicant']=query2
-        applications.append(arr)
-    return applications
-@app.delete("/application/delete")
-def delete_application(delid:Baseschema):
-    conn.execute(application.delete().where(application.c.id==delid.id))
-    return conn.execute(application.select()).fetchall()
+# Dependency
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
-@app.post("/application/create")
-def create_application(user:Application):
-    conn.execute(application.insert().values(
-        job_id=user.job_id,
-        user_id=user.user_id,
-        introduction=user.intro,
-        name=user.user_name,
-        email=user.user_email,
-        qualification=user.qualification,
-        experiance=user.experiance,
-        skills=user.skills,
-        phone=user.phone,
-        applied_at=func.now()
-    )).fetchall
-    return conn.execute(application.select()).fetchall()
+@app.get("/users")#user login
+def read_users(db: Session = Depends(get_db)):
+    return db.query(models.User).all()
 
-@app.delete("/job/delete")
-def delete_job(delid:Baseschema):
-    conn.execute(job.delete().where(job.c.id==delid.id))
-    conn.execute(application.delete().where(application.c.job_id==delid.id))
-    return conn.execute(job.select()).fetchall()
 
-@app.get("/jobs/{id}")
-def get_job(id:int):
-    return conn.execute(job.select().where(job.c.auther_id==id)).fetchall()
+@app.get("/jobs/{user_email}", response_model=List[schemas.Resjob])#job recruiter
+def read_user(user_email: str, db: Session = Depends(get_db)):
+    db_user = crud.get_user(db, user_email=user_email)
+    if db_user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    else:
+        db_job=crud.get_job(db,id=db_user.id)
+        if db_job is None:
+            raise HTTPException(status_code=404, detail="Job not found")
+        return db_job
 
-@app.post("/create/jobs")
-def create_job(jobs:Jobresponse):
-    conn.execute(job.insert().values(
-        auther_id=jobs.auther_id,
-        title=jobs.title,
-        company_name=jobs.company_name,
-        salary=jobs.salary,
-        description=jobs.description,
-        job_type=jobs.job_type,
-        qualification=jobs.qualification,
-        created_at=func.now()
-    ))
-    return conn.execute(job.select()).fetchall()
 
-@app.put("/edit/jobs/{id}")
-def edit_job(id:int,jobs:Jobresponse):
-    conn.execute(job.update().values(
-        auther_id=jobs.auther_id,
-        title=jobs.title,
-        company_name=jobs.company_name,
-        salary=jobs.salary,
-        description=jobs.description,
-        job_type=jobs.job_type,
-        qualification=jobs.qualification,
-        created_at=func.now()
-    ).where(job.c.id==id))
-    return conn.execute(job.select()).fetchall()
+@app.get("/applications/{emailid}", response_model=List[schemas.Resapp])#user
+def read_application(emailid: str, db: Session = Depends(get_db)):
+     db_user = crud.get_user(db, user_email=emailid)
+     if db_user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+     else:
+        db_app=crud.get_app(db,id=db_user.id)
+        if (db_app==[]):
+            raise HTTPException(status_code=400, detail="Application not found")
+        return db_app
+
+@app.get("/get/jobs/{user_email}")#jobcheckuser
+def get_jobs(user_email: str, db: Session = Depends(get_db)):
+    db_user = crud.get_user(db, user_email=user_email)
+    if db_user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    else:
+        arr=[]
+        query=db.query(models.Job)
+        subquery=db.query(models.Application.job_id)
+        in_expression=models.Job.id.notin_(subquery.filter(models.Application.user_id==db_user.id))
+        db_job=query.filter(in_expression).all()
+        for r in db_job:
+            arr.append(r) 
+        if(arr==[]):
+            raise HTTPException(status_code=404, detail="New Jobs not yet created")
+
+    return arr
+
+@app.delete("/application/delete/{delid}")#delete application
+def delete_application(delid:int,db: Session = Depends(get_db)):
+    db_app=crud.chk_app(db,id=delid)
+    if (db_app==[]):
+        raise HTTPException(status_code=404, detail="Application not found in that id")
+    else:
+        delete=db.query(models.Application).filter(models.Application.id==delid).delete()
+        db.commit()
+    return db.query(models.Application).all()
+
+@app.delete("/job/delete/{delid}")#delete job
+def delete_Job(delid:int,db: Session = Depends(get_db)):
+    db_app=crud.chk_job(db,id=delid)
+    if (db_app==[]):
+        raise HTTPException(status_code=404, detail="Job not found in that id")
+    else:
+        delete=db.query(models.Job).filter(models.Job.id==delid).delete()
+        delete_app=db.query(models.Application).filter(models.Application.job_id==delid).delete()
+        db.commit()
+    return db.query(models.Job).all()
+
+@app.put("/job/edit/{id}")#update job
+def update_Job(id:int,job:schemas.Jobresponse,db: Session = Depends(get_db)):
+    db_job=crud.chk_job(db,id=id)
+    if (db_job==[]):
+        raise HTTPException(status_code=404, detail="Job not found in that id")
+    else:
+        db_edit=crud.update_job(db,job,id=id)
+        
+    return db_edit
+@app.post("/create/job/{mail}")#cretae
+def create_job(mail: str,job:schemas.Jobresponse,db: Session = Depends(get_db)):
+    db_user = crud.get_user(db, user_email=mail)
+    if db_user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    else:
+        db_chk=db.query(models.Job).filter( models.Job.title==job.title,models.Job.author_id==db_user.id,models.Job.company_name==job.company_name).all()
+        if(db_chk !=[]):
+            raise HTTPException(status_code=404, detail="This Job Already Exist")
+        else:
+            db_create=crud.create_job(db,job,id=db_user.id)
+        return db_create
+
+
+
+@app.post("/apply/{email}")#apply job
+def create_application(email: str,app:schemas.Applicationres,db: Session = Depends(get_db)):
+    db_user = crud.get_user(db, user_email=email)
+    if (db_user is None):
+        raise HTTPException(status_code=404, detail="User not found")
+    else:
+        db_job=crud.chk_job(db,id=app.job_id)
+        if (db_job==[]):
+              raise HTTPException(status_code=404, detail="Job not found in that id")
+        db_chk=db.query(models.Application).filter( models.Application.job_id==app.job_id,models.Application.user_id==db_user.id).first()
+        if(db_chk is None):
+            db_app=crud.create_application(db,app,id=db_user.id) 
+        else:
+            raise HTTPException(status_code=404, detail="Already applied")
+    return db_app
+
+
+
+

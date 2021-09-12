@@ -218,7 +218,7 @@ export default {
       initialize () {
         this.id = JSON.parse(localStorage.getItem("userinfo"));
         axios
-        .get("/jobs/"+this.id.id)
+        .get("/jobs/"+this.id.email)
         .then((res) => {
           
           if (res.status == 200) {
@@ -246,13 +246,14 @@ export default {
 
       deleteItemConfirm () {
         
-           this.$router.go()
+           
       axios
-        .delete("/job/delete", { data: { id: this.editedIndex } })
+        .delete("/job/delete/"+ this.editedIndex)
         .then((res) => {
           this.applications = res.data
           if (res.status == 200) {
             this.$alert("Successfully deleted")
+            this.$router.go()
             
           }
         })
@@ -279,8 +280,7 @@ export default {
         if (this.editedIndex > -1) {
           var json=this.editedItem
           axios
-        .put("/edit/jobs/"+json.id,{
-            auther_id: this.id.id,
+        .put("/job/edit/"+json.id,{
             title: json.title,
             company_name: json.company_name,
             description:  json.description,
@@ -311,15 +311,15 @@ export default {
       }else{
           var json2=this.editedItem
           axios
-        .post("/create/jobs",  {
-            auther_id: this.id.id,
+        .post("/create/job/"+this.id.email,  {
             title: json2.title,
             company_name: json2.company_name,
-            description:  json2.description,
-            qualification: json2.qualification,
-            job_type: json2.job_type,
-            salary: json2.salary
-            } )
+        salary:json2.salary,
+        description: json2.description,
+        job_type: json2.job_type,
+        qualification: json2.qualification
+
+            })
         .then((res) => {
           this.applications = res.data;
           if (res.status == 200) {

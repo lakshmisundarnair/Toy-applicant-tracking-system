@@ -1,45 +1,48 @@
-from sqlalchemy import Boolean, Column, ForeignKey, Integer, String,DateTime,Table
-from sqlalchemy.sql import func
-from database import engine
-from sqlalchemy import MetaData
-from typing import List
-metadata=MetaData()
-user =Table( "users",metadata,
+from sqlalchemy import Boolean, Column, ForeignKey, Integer, String,DateTime
+from sqlalchemy.orm import relationship
+from database import Base
 
-    Column("id",Integer, primary_key=True, autoincrement="auto"),
-    Column("email",String, unique=True),
-    Column("name",String,nullable=False),
-    Column("password",String,nullable=False),
-    Column("type",String,nullable=False))
+class User(Base):
 
-job=Table("jobs",metadata,
-
-    Column("id",Integer, primary_key=True, index=True),
-    Column("auther_id",Integer,ForeignKey("users.id"), index=True),
-    Column("title",String,nullable=False),
-    Column("company_name",String,nullable=False),
-    Column("description",String),
-    Column("job_type",String),
-    Column("salary",String,nullable=False),
-    Column("qualification",String),
-    Column("created_at",DateTime,server_default=func.now()),
-   )
-
-application = Table("applications",metadata,
-
-    Column("id",Integer, primary_key=True, index=True),
-    Column("job_id",Integer,ForeignKey("jobs.id"),nullable=False),
-    Column("user_id",Integer,ForeignKey("users.id"),nullable=False),
-    Column("introduction",String),
-    Column("email",String, unique=True),
-    Column("name",String,nullable=False),
-    Column("phone",Integer,nullable=False),
-    Column("skills",String),
-    Column("experiance",String,nullable=False),
-    Column("qualification",String),
-    Column("applied_at",DateTime,server_default=func.now()),    
-    )
-metadata.create_all(engine)
+    __tablename__ = "users"
+    id = Column(Integer, primary_key=True, index=True)
+    name=Column(String)
+    email = Column(String, unique=True, index=True)
+    password = Column(String)
+    type = Column(String)
+    jobs=relationship("Job",back_populates="owner")
+    application=relationship("Application",back_populates="applicant")
 
 
+class Job(Base):
 
+    __tablename__ = "jobs"
+
+
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String, index=True)
+    description = Column(String, index=True)
+    company_name = Column(String, index=True)
+    salary = Column(String, index=True)
+    job_type = Column(String, index=True)
+    qualification = Column(String, index=True)
+    author_id = Column(Integer, ForeignKey("users.id"))
+    created_at=Column(DateTime)
+    application=relationship("Application",back_populates="job")
+    owner = relationship("User",back_populates="jobs")
+
+class Application(Base):
+
+    __tablename__ = "applications"
+
+    id = Column(Integer, primary_key=True, index=True)
+    job_id = Column(Integer,ForeignKey("jobs.id"))
+    user_id = Column(Integer,ForeignKey("users.id"))
+    introduction = Column(String, index=True)
+    qualification = Column(String, index=True)
+    skills = Column(String)
+    experiance = Column(String)
+    phone = Column(Integer)
+    submitted_on=Column(DateTime)
+    applicant= relationship("User",back_populates="application")
+    job=relationship("Job",back_populates="application")

@@ -57,7 +57,7 @@
               <v-card-actions>
                 <v-spacer></v-spacer>
                 <v-btn color="green darken-1" text @click="close()">
-                  Cancle
+                  Cancel
                 </v-btn>
                 <v-dialog v-model="dialog2" persistent max-width="600px">
                   <template v-slot:activator="{ on, attrs }">
@@ -83,28 +83,6 @@
                             
                             v-model="pass.id"
                           />
-                          <input
-                            type="hidden"
-                           
-                            v-model="user.id"
-                          />
-                          <v-col cols="12"
-                            ><v-text-field
-                              label="Legal first name*"
-                              
-                              required
-                              v-model="user.name"
-                            ></v-text-field>
-                          </v-col>
-
-                          <v-col cols="12">
-                            <v-text-field
-                              label="Email*"
-                              required
-                              
-                              v-model="user.email"
-                            ></v-text-field>
-                          </v-col>
                           <v-col cols="12">
                             <v-textarea
                               v-model="intro"
@@ -198,7 +176,7 @@ export default {
     getjob() {
       this.user = JSON.parse(localStorage.getItem("userinfo"));
       axios
-        .get("/jobs/notapplied/"+this.user.id)
+        .get("/get/jobs/"+this.user.email)
         .then((res) => {
           this.items = res.data;
           if(res.data==""){
@@ -210,6 +188,7 @@ export default {
         });
     },
     returnindex(index) {
+     
       this.pass = this.items[index];
     },
     apply() {
@@ -222,15 +201,14 @@ export default {
         this.$alert("Please fill the required fields");
       } else {
         axios
-        .post("/application/create",  { job_id: this.pass.id,
-            user_id: this.user.id,
-            user_name: this.user.name,
-            user_email: this.user.email,
+        .post("/apply/"+this.user.email,{
+            job_id: this.pass.id,
             intro: this.intro,
             qualification: this.qualification,
             experiance: this.experiance,
             skills: this.skills,
-            phone: this.phone} )
+            phone: this.phone
+            } )
         .then((res) => {
           this.applications = res.data;
           if (res.status == 200) {
@@ -238,6 +216,7 @@ export default {
             this.$alert("Application Submitted Successfully");
             close()
           }
+        
         })
         .catch((error) => {
           this.$alert(error)

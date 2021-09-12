@@ -98,7 +98,7 @@ import axios from 'axios'
                 
             },
               getmsg(){
-             axios.get('/user').then((res)=>{
+             axios.get('/users').then((res)=>{
              this.msg=res.data
               
        

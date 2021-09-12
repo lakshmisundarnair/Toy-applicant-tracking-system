@@ -6,7 +6,7 @@ npm run serve
 
 To run backend open another terminal:
 cd server
-env/Scripts/activate
+server/Scripts/activate
 uvicorn index:app --reload
 
 To login use the below credentials:

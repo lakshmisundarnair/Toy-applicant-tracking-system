@@ -13,7 +13,7 @@
       style="box-shadow: 0 12px 15px 0 rgb(0 0 0 / 24%), 0 17px 50px 0 rgb(0 0 0 / 19%);width: 90%;">
     <v-row aalign="center" >
         <v-col class="grow">
-           <span style="font-weight: 100;">Applications reicived for : </span> {{item.job.title}}  <span style="font-weight: 100; font-size:12px;"> created on : {{item.job.created_at}}</span>  
+           <span style="font-weight: 100;">Applications reicived for : </span>{{item.title}}  <span style="font-weight: 100; font-size:12px;"> created on : {{item.created_at}} </span>  
         </v-col>
         <v-col class="shrink" >
           <v-btn style="top: -6px;" v-bind="attrs"
@@ -36,14 +36,14 @@
           <span style="font-size:15px;">No of candidate applied: </span>&nbsp;{{count}}
         </v-card-title>
           <v-card-text v-for="items in applicants" :key="items"><br>
-          <span style="font-weight: bold;">Name</span> : {{items.name}}<br><br>
-          <span style="font-weight: bold;">Email</span> : {{items.email}}<br><br>
+          <span style="font-weight: bold;">Name</span> : {{items.applicant.name}}<br><br>
+          <span style="font-weight: bold;">Email</span> : {{items.applicant.email}}<br><br>
           <span style="font-weight: bold;">Self Intro by Candidate</span> : {{items.introduction}}<br><br>
-          <span style="font-weight: bold;">Qualification</span> :{{items.qualification}} <br><br>
+          <span style="font-weight: bold;">Qualification</span> : {{items.qualification}} <br><br>
           <span style="font-weight: bold;">Experiance</span> : {{items.experiance}}<br><br>
-          <span style="font-weight: bold;">Skills</span> :{{items.skills}} <br><br>
+          <span style="font-weight: bold;">Skills</span> : {{items.skills}}<br><br>
           <span style="font-weight: bold;">Phone no</span> : {{items.phone}}<br><br>
-          <span style="font-weight: bold;">Application Submitted on</span> : {{items.applied_at}}<br><br>
+          <span style="font-weight: bold;">Application Submitted on</span> : {{items.submitted_on}}<br><br>
           ***************************************************************************************
           </v-card-text>
         <v-card-actions>
@@ -53,7 +53,7 @@
             text
             @click="close()"
            >
-            Cancle
+            Cancel
           </v-btn>
         </v-card-actions>
   
@@ -83,8 +83,9 @@ export default {
       getapplication(){
         this.id=JSON.parse(localStorage.getItem("userinfo"))
       
-      axios.post('/application', {"id":this.id.id}).then((res)=>{
+      axios.get('/jobs/'+this.id.email).then((res)=>{
         this.applications=res.data
+        
         
         
       }).catch((error)=>{this.$alert(error)})
@@ -93,11 +94,14 @@ export default {
          var arr=[]
          this.dialog=true
          var json=this.applications
-          for(var i=0;i<json[index].applicant.length;i++){
-           arr.push(json[index].applicant[i])
+
+          for(var i=0;i<json[index].application.length;i++){
+           arr.push(json[index].application[i])
           }
+          
           this.applicants=arr
-          this.count=json[index].applicant.length
+          
+          this.count=json[index].application.length
 
     },
     close(){
